@@ -22,18 +22,18 @@ export function Navbar() {
 
   return (
     <header
-      className={`fixed inset-x-0 top-7 z-50 transition-all duration-300 ${
-        scrolled ? "py-2" : "py-4"
+      className={`fixed inset-x-0 top-3 sm:top-7 z-50 transition-all duration-300 ${
+        scrolled ? "py-1.5 sm:py-2" : "py-3 sm:py-4"
       }`}
     >
       <div className="container-rio">
         <div
-          className={`flex items-center justify-between rounded-full px-5 py-2.5 transition-all duration-300 ${
-            scrolled ? "glass shadow-glass dark:shadow-glass-dark" : ""
+          className={`flex items-center justify-between rounded-full px-3.5 py-2 sm:px-5 sm:py-2.5 transition-all duration-300 ${
+            scrolled ? "glass shadow-glass dark:shadow-glass-dark" : "glass sm:bg-transparent sm:border-transparent sm:backdrop-blur-none"
           }`}
         >
-          <a href="#" className="flex items-center gap-2 font-display text-xl font-extrabold tracking-tight text-forest dark:text-cream">
-            <span className="flex h-8 w-8 items-center justify-center rounded-full bg-forest text-sm text-cream dark:bg-leaf">
+          <a href="#" className="flex items-center gap-2 font-display text-lg sm:text-xl font-extrabold tracking-tight text-forest dark:text-cream">
+            <span className="flex h-7 w-7 sm:h-8 sm:w-8 items-center justify-center rounded-full bg-forest text-xs sm:text-sm text-cream dark:bg-leaf">
               R
             </span>
             {site.name}
@@ -51,23 +51,23 @@ export function Navbar() {
             ))}
           </nav>
 
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-1.5 sm:gap-2">
             <button
               onClick={() => setDark((d) => !d)}
               aria-label={dark ? "Chuyển sang giao diện sáng" : "Chuyển sang giao diện tối"}
-              className="flex h-9 w-9 items-center justify-center rounded-full border border-forest/15 text-forest transition-colors hover:bg-forest/5 dark:border-cream/20 dark:text-cream dark:hover:bg-cream/10"
+              className="flex h-8 w-8 sm:h-9 sm:w-9 items-center justify-center rounded-full border border-forest/15 text-forest transition-colors hover:bg-forest/5 dark:border-cream/20 dark:text-cream dark:hover:bg-cream/10"
             >
-              {dark ? <Sun size={16} /> : <Moon size={16} />}
+              {dark ? <Sun size={15} /> : <Moon size={15} />}
             </button>
-            <a href="#lien-he" className="btn-primary hidden sm:inline-flex">
+            <a href="#lien-he" className="btn-primary hidden md:inline-flex text-xs sm:text-sm px-4 py-2 sm:px-7 sm:py-3.5">
               Liên hệ đặt hàng
             </a>
             <button
               onClick={() => setOpen((o) => !o)}
               aria-label="Mở menu"
-              className="flex h-9 w-9 items-center justify-center rounded-full border border-forest/15 text-forest lg:hidden dark:border-cream/20 dark:text-cream"
+              className="flex h-8 w-8 sm:h-9 sm:w-9 items-center justify-center rounded-full border border-forest/15 text-forest lg:hidden dark:border-cream/20 dark:text-cream"
             >
-              {open ? <X size={18} /> : <Menu size={18} />}
+              {open ? <X size={17} /> : <Menu size={17} />}
             </button>
           </div>
         </div>

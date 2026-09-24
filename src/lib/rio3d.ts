@@ -468,10 +468,8 @@ function buildShared(): Promise<Shared> {
 
       const relLeft = rect.left - canvasRect.left;
       const relBottom = canvasRect.bottom - rect.bottom;
-      const relTop = rect.top - canvasRect.top;
-      const relRight = rect.right - canvasRect.left;
 
-      if (relBottom < -200 || relTop > ch + 200 || relRight < -200 || relLeft > cw + 200) return;
+      if (rect.bottom < -200 || rect.top > ch + 200 || rect.right < -200 || rect.left > cw + 200) return;
 
       const x = Math.round(relLeft * dpr);
       const y = Math.round(relBottom * dpr);
