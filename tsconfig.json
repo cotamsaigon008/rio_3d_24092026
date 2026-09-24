@@ -22,5 +22,5 @@
     }
   },
   "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts"],
-  "exclude": ["node_modules"]
+  "exclude": ["node_modules", "AppData", "Downloads", "Documents", "3D Objects", "Contacts", "Desktop", "Favorites", "IntelGraphicsProfiles", "Links", "Music", "OneDrive", "Pictures", "Saved Games", "Searches", "Tracing", "Videos", "go", "orca"]
 }
