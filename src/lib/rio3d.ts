@@ -461,22 +461,38 @@ function buildShared(): Promise<Shared> {
     renderer.clear();
     renderer.setScissorTest(true);
 
+    const bw = Math.round(cw * dpr);
+    const bh = Math.round(ch * dpr);
+
     s.slots.forEach((slot) => {
       slot.update(dt);
       const rect = slot.opts.getRect();
       if (!rect || rect.width < 2 || rect.height < 2) return;
 
-      const relLeft = rect.left - canvasRect.left;
-      const relBottom = canvasRect.bottom - rect.bottom;
+      const vx = rect.left - canvasRect.left;
+      const vy = canvasRect.bottom - rect.bottom;
+      const vw = rect.width;
+      const vh = rect.height;
 
-      if (rect.bottom < -200 || rect.top > ch + 200 || rect.right < -200 || rect.left > cw + 200) return;
+      const vxPx = Math.round(vx * dpr);
+      const vyPx = Math.round(vy * dpr);
+      const vwPx = Math.round(vw * dpr);
+      const vhPx = Math.round(vh * dpr);
 
-      const x = Math.round(relLeft * dpr);
-      const y = Math.round(relBottom * dpr);
-      const w = Math.round(rect.width * dpr);
-      const h = Math.round(rect.height * dpr);
-      renderer.setScissor(x, y, w, h);
-      renderer.setViewport(x, y, w, h);
+      const sx1 = Math.max(0, vxPx);
+      const sy1 = Math.max(0, vyPx);
+      const sx2 = Math.min(bw, vxPx + vwPx);
+      const sy2 = Math.min(bh, vyPx + vhPx);
+
+      if (sx2 <= sx1 || sy2 <= sy1) return;
+
+      const sxPx = sx1;
+      const syPx = sy1;
+      const swPx = sx2 - sx1;
+      const shPx = sy2 - sy1;
+
+      renderer.setViewport(vxPx, vyPx, vwPx, vhPx);
+      renderer.setScissor(sxPx, syPx, swPx, shPx);
       slot.syncCamera(rect.width, rect.height);
       renderer.render(slot.scene, slot.camera);
       if (!slot.firstFrameDone) {
