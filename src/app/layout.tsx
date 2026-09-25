@@ -6,8 +6,9 @@ import { site } from "@/lib/content";
 export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
-  maximumScale: 1,
-  userScalable: false,
+  // Không khoá zoom của iOS: viewport meta sai khiến Safari dùng layout
+  // viewport khác với visual viewport, làm canvas 3D lệch khi xoay ngang.
+  viewportFit: "cover",
 };
 
 // Self-hosted for reliable, network-independent builds (no runtime call to

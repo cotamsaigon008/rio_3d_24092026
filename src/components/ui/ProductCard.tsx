@@ -19,9 +19,9 @@ export function ProductCard({
   label: string;
 }) {
   return (
-    <div className="group flex h-full flex-col rounded-4xl bg-white shadow-glass transition-transform duration-300 hover:-translate-y-1.5 dark:bg-forest-light/40">
+    <div className="group flex h-full min-w-0 max-w-full flex-col rounded-4xl bg-white shadow-glass transition-transform duration-300 hover:-translate-y-1.5 dark:bg-forest-light/40">
       {/* Sân khấu 3D: sản phẩm được tách nền, đứng trên sàn bóng và nhô lên khỏi mép khung */}
-      <div className="relative h-[19rem]">
+      <div className="relative h-[19rem] min-w-0">
         <div
           className="absolute inset-x-0 bottom-0 top-10 overflow-hidden rounded-t-4xl"
           style={{ background: stageBackground(glow) }}

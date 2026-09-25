@@ -12,8 +12,8 @@ export function Hero() {
       <div className="absolute inset-0 bg-rio-radial" aria-hidden="true" />
       <BubbleField count={22} />
 
-      <div className="container-rio relative grid items-center gap-14 lg:grid-cols-[1.05fr_0.95fr]">
-        <div>
+      <div className="container-rio relative grid min-w-0 items-center gap-14 lg:grid-cols-[1.05fr_0.95fr]">
+        <div className="min-w-0">
           <motion.span
             initial={{ opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}
@@ -59,10 +59,10 @@ export function Hero() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ duration: 0.7, delay: 0.45 }}
-            className="mt-12 grid max-w-lg grid-cols-3 gap-6 border-t border-forest/10 pt-8 dark:border-cream/10"
+            className="mt-12 grid max-w-lg min-w-0 grid-cols-3 gap-4 sm:gap-6 border-t border-forest/10 pt-8 dark:border-cream/10"
           >
             {heroContent.stats.map((s) => (
-              <div key={s.label}>
+              <div key={s.label} className="min-w-0">
                 <dt className="font-display text-2xl font-extrabold text-forest dark:text-gold sm:text-3xl">
                   {s.value}
                 </dt>
@@ -74,8 +74,9 @@ export function Hero() {
           </motion.dl>
         </div>
 
-        {/* Sân khấu 3D: quầng xanh rừng phía sau, sản phẩm tách nền đứng trên sàn và nhô ra khỏi quầng */}
-        <div className="relative mx-auto h-[460px] w-full max-w-[560px] sm:h-[600px] lg:h-[640px]">
+        {/* Sân khấu 3D: quầng xanh rừng phía sau, sản phẩm tách nền đứng trên sàn và nhô ra khỏi quầng.
+            isolate để tạo stacking context riêng trên iOS. */}
+        <div className="relative mx-auto h-[460px] w-full min-w-0 max-w-[560px] isolate sm:h-[600px] lg:h-[640px]">
           <div
             aria-hidden="true"
             className="absolute left-1/2 top-[49%] aspect-square w-[80%] -translate-x-1/2 -translate-y-1/2 rounded-full"

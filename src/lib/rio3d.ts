@@ -373,6 +373,7 @@ let sharedPromise: Promise<Shared> | null = null;
 function buildShared(): Promise<Shared> {
   const canvas = document.createElement("canvas");
   canvas.setAttribute("aria-hidden", "true");
+  canvas.setAttribute("data-rio-shared", "true");
   Object.assign(canvas.style, {
     position: "fixed",
     top: "0",
@@ -386,10 +387,20 @@ function buildShared(): Promise<Shared> {
   } as CSSStyleDeclaration);
   document.body.appendChild(canvas);
 
-  const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true, powerPreference: "high-performance" });
+  // iPhone thường có DPR=3. Buffer 2x vẫn đủ sắc nét nhưng nhẹ hơn nhiều;
+  // hạ antialias/powerPreference trên mobile để giảm nguy cơ Safari thu hồi
+  // WebGL context khi đang cuộn qua nhiều slot.
+  const mobileGPU = window.matchMedia("(pointer: coarse)").matches;
+  const maxDpr = mobileGPU ? 1.5 : 2;
+  const renderer = new THREE.WebGLRenderer({
+    canvas,
+    antialias: !mobileGPU,
+    alpha: true,
+    powerPreference: mobileGPU ? "low-power" : "high-performance",
+  });
   renderer.setClearColor(0x000000, 0);
   renderer.autoClear = false;
-  renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, maxDpr));
 
   const pmrem = new THREE.PMREMGenerator(renderer);
   const envRT = pmrem.fromScene(new RoomEnvironment(), 0.04);
@@ -427,11 +438,19 @@ function buildShared(): Promise<Shared> {
     const canvasRect = canvas.getBoundingClientRect();
     const cw = canvasRect.width || canvas.clientWidth || window.innerWidth;
     const ch = canvasRect.height || canvas.clientHeight || window.innerHeight;
-    const dpr = Math.min(window.devicePixelRatio || 1, 2);
+    const dpr = Math.min(window.devicePixelRatio || 1, maxDpr);
     renderer.setPixelRatio(dpr);
     renderer.setSize(cw, ch, false);
   };
   resizeCanvas();
+  canvas.addEventListener(
+    "webglcontextrestored",
+    () => {
+      resizeCanvas();
+      s.clock.last = performance.now();
+    },
+    false,
+  );
   window.addEventListener("resize", resizeCanvas);
   window.addEventListener("orientationchange", resizeCanvas);
   if (typeof window !== "undefined" && window.visualViewport) {
@@ -450,8 +469,8 @@ function buildShared(): Promise<Shared> {
     const ch = canvasRect.height || canvas.clientHeight || window.innerHeight;
     const dpr = renderer.getPixelRatio();
 
-    const expectedW = Math.round(cw * dpr);
-    const expectedH = Math.round(ch * dpr);
+    const expectedW = Math.floor(cw * dpr);
+    const expectedH = Math.floor(ch * dpr);
     const drawingSize = renderer.getDrawingBufferSize(new THREE.Vector2());
     if (drawingSize.width !== expectedW || drawingSize.height !== expectedH) {
       renderer.setSize(cw, ch, false);
@@ -461,38 +480,37 @@ function buildShared(): Promise<Shared> {
     renderer.clear();
     renderer.setScissorTest(true);
 
-    const bw = Math.round(cw * dpr);
-    const bh = Math.round(ch * dpr);
-
+    // `setViewport`/`setScissor` của Three.js nhận toạ độ CSS (logical pixels).
+    // Renderer tự nhân với pixelRatio khi chuyển sang drawing-buffer. Không được
+    // nhân DPR ở đây: làm vậy sẽ nhân DPR hai lần, khiến sản phẩm phình to và
+    // lệch sang phải đúng như lỗi iPhone (devicePixelRatio = 3).
     s.slots.forEach((slot) => {
-      slot.update(dt);
       const rect = slot.opts.getRect();
       if (!rect || rect.width < 2 || rect.height < 2) return;
 
+      // Chuyển rect của DOM sang toạ độ canvas (CSS px, gốc dưới-trái).
+      // Tất cả phép cắt/tính toạ độ phải dùng cùng một không gian; không trộn
+      // rect.client với kích thước drawing-buffer.
       const vx = rect.left - canvasRect.left;
       const vy = canvasRect.bottom - rect.bottom;
       const vw = rect.width;
       const vh = rect.height;
 
-      const vxPx = Math.round(vx * dpr);
-      const vyPx = Math.round(vy * dpr);
-      const vwPx = Math.round(vw * dpr);
-      const vhPx = Math.round(vh * dpr);
+      const sx1 = Math.max(0, vx);
+      const sy1 = Math.max(0, vy);
+      const sx2 = Math.min(cw, vx + vw);
+      const sy2 = Math.min(ch, vy + vh);
 
-      const sx1 = Math.max(0, vxPx);
-      const sy1 = Math.max(0, vyPx);
-      const sx2 = Math.min(bw, vxPx + vwPx);
-      const sy2 = Math.min(bh, vyPx + vhPx);
-
+      // Intersection cũng đóng vai trò culling: slot ngoài màn hình không cần
+      // update animation, nhưng slot chạm mép vẫn giữ nguyên viewport đầy đủ.
       if (sx2 <= sx1 || sy2 <= sy1) return;
 
-      const sxPx = sx1;
-      const syPx = sy1;
-      const swPx = sx2 - sx1;
-      const shPx = sy2 - sy1;
+      slot.update(dt);
 
-      renderer.setViewport(vxPx, vyPx, vwPx, vhPx);
-      renderer.setScissor(sxPx, syPx, swPx, shPx);
+      // Viewport giữ nguyên toàn bộ slot để camera/aspect không bị đổi khi slot
+      // chạm mép màn hình; scissor mới giới hạn vùng rasterization.
+      renderer.setViewport(vx, vy, vw, vh);
+      renderer.setScissor(sx1, sy1, sx2 - sx1, sy2 - sy1);
       slot.syncCamera(rect.width, rect.height);
       renderer.render(slot.scene, slot.camera);
       if (!slot.firstFrameDone) {

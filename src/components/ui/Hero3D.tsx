@@ -77,16 +77,25 @@ export function Hero3D({ className = "" }: { className?: string }) {
     (async () => {
       try {
         const { registerProductSlot } = await import("@/lib/rio3d");
+        // Giữ nguyên layout 3D ở mọi hướng màn hình. Camera đã tự tính
+        // aspect từ rect của slot; việc scale/pos theo width chỉ làm cụm bị
+        // đổi kích thước khi xoay ngang và tạo cảm giác lệch mới.
         const products: ProductSpec[] = HERO_ITEMS.map((it) => {
           const a = productAssets(it.image);
-          return { kind: a.kind, tex: a.tex, glow: it.glow, ...it.spec };
+          return {
+            kind: a.kind,
+            tex: a.tex,
+            glow: it.glow,
+            ...it.spec,
+          };
         });
+        const bubbles = window.innerWidth < 768 ? 32 : 70;
         const s = await registerProductSlot({
           getRect: () => wrap.getBoundingClientRect(),
           layout: "hero",
           products,
           reduceMotion: reduce,
-          bubbles: 70,
+          bubbles,
           onFirstFrame: () => !gone && setReady(true),
         });
         if (gone) {
@@ -115,18 +124,18 @@ export function Hero3D({ className = "" }: { className?: string }) {
   return (
     <div
       ref={wrapRef}
-      className={className}
+      className={`rio-3d-wrap ${className}`}
       role="img"
       aria-label="Chai và lon RIO: Dâu & Vodka, Việt Quất, Chanh Dưa Leo, RIO Light Đào, RIO Light Chanh Dây"
     >
       {/* Poster: ảnh chai đã tách nền — hiển thị ngay khi trang tải, mờ dần khi 3D sẵn sàng; cũng là bản
-          dự phòng khi trình duyệt không hỗ trợ WebGL. */}
+          dự phòng khi trình duyệt không hỗ trợ WebGL. Kẹp trong khung để không tràn ngang iOS. */}
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img
         src={hero.poster}
         alt=""
         style={posterStyle}
-        className={`pointer-events-none absolute left-1/2 w-auto max-w-none -translate-x-1/2 transition-opacity duration-700 ${
+        className={`pointer-events-none absolute left-1/2 max-w-full w-auto -translate-x-1/2 object-contain transition-opacity duration-700 ${
           ready && !failed ? "opacity-0" : "opacity-100"
         }`}
       />

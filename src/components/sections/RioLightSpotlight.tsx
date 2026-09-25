@@ -35,10 +35,11 @@ export function RioLightSpotlight() {
       className="relative overflow-hidden bg-rio-gradient-dark py-24 sm:py-32"
     >
       <div className="absolute inset-0 bg-rio-radial" aria-hidden="true" />
-      {/* quầng sáng hồng đào phía sau lon, thay cho phông nền đen của bản gốc */}
+      {/* quầng sáng hồng đào phía sau lon, thay cho phông nền đen của bản gốc.
+          Dùng chiều rộng tương đối để không bao giờ rộng hơn viewport mobile. */}
       <div
         aria-hidden="true"
-        className="absolute left-1/2 top-1/2 h-[620px] w-[620px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-[#FFA3BC] opacity-[0.16] blur-[140px]"
+        className="absolute left-1/2 top-1/2 aspect-square w-[160vw] max-w-[620px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-[#FFA3BC] opacity-[0.16] blur-[140px]"
       />
 
       <div className="container-rio relative grid items-center gap-y-16 lg:grid-cols-12 lg:gap-x-8">

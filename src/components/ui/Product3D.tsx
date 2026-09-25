@@ -108,12 +108,14 @@ export function Product3D({
   return (
     <div
       ref={wrapRef}
-      className={`cursor-grab touch-pan-y select-none active:cursor-grabbing ${className}`}
+      className={`rio-3d-wrap cursor-grab touch-pan-y select-none active:cursor-grabbing ${className}`}
       role="img"
       aria-label={label}
     >
       {/* Poster: ảnh đã tách nền (alpha) — hiển thị ngay, và là bản dự phòng khi không có WebGL.
-          Canvas 3D thực tế là MỘT canvas dùng chung cho cả trang, vẽ đè lên đúng vị trí của khung này. */}
+          Canvas 3D thực tế là MỘT canvas dùng chung cho cả trang, vẽ đè lên đúng vị trí của khung này.
+          Poster bị kẹp trong khung (không max-w-none tràn trang như trước — đó là 1 nguyên nhân
+          gây tràn ngang trên iOS khi WebGL chưa sẵn sàng / mất context). */}
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img
         src={assets.poster}
@@ -122,7 +124,7 @@ export function Product3D({
         loading="lazy"
         decoding="async"
         style={posterStyle}
-        className={`pointer-events-none absolute left-1/2 w-auto max-w-none -translate-x-1/2 select-none transition-opacity duration-500 ${
+        className={`pointer-events-none absolute left-1/2 max-w-full -translate-x-1/2 select-none object-contain transition-opacity duration-500 ${
           ready ? "opacity-0" : "opacity-100"
         }`}
       />
